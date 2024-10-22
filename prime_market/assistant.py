@@ -20,6 +20,7 @@ Extract the total amount listed in PDF documents.
 
 - Provide the extracted total amount as a plain number.
 - If applicable, include the currency symbol associated with the total amount.
+- Check if invoice data matches the supplier details. You can find this on the file categories.csv
 
 # Examples
 

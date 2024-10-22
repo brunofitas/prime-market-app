@@ -24,14 +24,28 @@ class AssistantThread:
                 {
                     "role": "user",
                     "content": """
-                        Output the $invoice_id, $total, $category_id, $currency and the $category of products from categories.json
+                        Output the $invoice_id, $invoice_date, $total, $category_id, $currency, $supplier name, address, 
+                        email, phone, vat/nif, IBAN, SWIFT and the $category of products from categories.json
+                    
                         Output the result in json in this format:
                         {
                             "invoice_id": $invoice_id,
-                            "currency": $currency,
+                            "invoice_date": $invoice_date,
                             "total": $total (without the currency),
-                            "category": $category,
-                            "category_id": $category_id
+                            "currency": $currency,
+                            "category": {
+                                "id": $category_id,
+                                "name": $category_name,
+                            },
+                            "supplier": {
+                                "name": ,
+                                "address": ,
+                                "phone": ,
+                                "email": ,
+                                "vat/nif":
+                                "iban":
+                                "swift":
+                            }
                         }
                         Do not output anything else but the json object in a string format. 
                         Remove the ```json ... ``` and the line breaks from the output.
@@ -47,13 +61,23 @@ class AssistantThread:
             thread_id=thread.id, assistant_id=os.environ.get("OPENAI_ASSISTANT_ID")
         )
 
-        messages = list(self.client.beta.threads.messages.list(thread_id=thread.id, run_id=run.id))
+        if run.status == 'failed':
+            return {
+                "status": "error",
+                "message": run.last_error.message
+            }
 
-        message_content = messages[0].content[0].text
+        else:
 
-        print(json.dumps(json.loads(message_content.value), indent=4))
-        # print("\n".join(citations))
+            messages = list(self.client.beta.threads.messages.list(thread_id=thread.id, run_id=run.id))
+
+            message_content = messages[0].content[0].text
+
+            return {
+                "status": "success",
+                "result": json.loads(message_content.value)
+            }
 
 
-if __name__ == "__main__":
-    AssistantThread().run(pdf_path="invoices/test.pdf")
+
+
